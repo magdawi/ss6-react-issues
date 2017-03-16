@@ -12,8 +12,8 @@ import IssueStore from "./stores/issue";
 import "./index.css";
 
 // wire up dependencies
-const githubAPI = new GithubAPI({ 
-  userToken: "e1ee0744f87186125f468ea4ade77674cb7979cd"
+const githubAPI = new GithubAPI({
+  userToken: "85fda5d1d70b7c6629f7d18170177e3e5f9bc440"
 });
 const sessionStore = new SessionStore({ githubAPI });
 const viewStore = new ViewStore();

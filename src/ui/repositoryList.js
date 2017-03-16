@@ -2,15 +2,15 @@ import React from "react";
 import { observer, inject } from "mobx-react";
 import { PENDING, REJECTED, FULFILLED } from "mobx-utils";
 import { Spinner, Button } from "@blueprintjs/core";
-export default inject("repoStore", "sessionStore")(
+export default inject("repoStore", "sessionStore", "viewStore")(
   observer(
     class RepositoryList extends React.Component {
-      constructor({ repoStore, sessionStore }) {
+      constructor({ repoStore, sessionStore, viewStore }) {
         super();
         repoStore.fetchRepos();
       }
       renderRepoList() {
-        const {sessionStore, repoStore} = this.props;
+        const {sessionStore, repoStore, viewStore} = this.props;
 
         if (sessionStore.authenticated) {
           const repoDeferred = repoStore.repoDeferred;
@@ -26,7 +26,7 @@ export default inject("repoStore", "sessionStore")(
                     className="pt-non-ideal-state-visual pt-non-ideal-state-icon"
                   >
                     <span className="pt-icon pt-icon-error" />
-                  </div> 
+                  </div>
                   <h4 className="pt-non-ideal-state-title">Error occured</h4>
                   <div className="pt-non-ideal-state-description">
                     <Button onClick={repoStore.fetchRepos} text="retry"/>
@@ -36,8 +36,23 @@ export default inject("repoStore", "sessionStore")(
             }
             case FULFILLED: {
               const repos = repoDeferred.value;
-              // TODO: implement list of repos
-              break;
+              //console.log(repos)
+              return (
+                <div className="repos">
+                  <h5>Amount: {repos.length}</h5>
+                  {
+                  repos.map(
+                    (e) =>
+                      <div key={e.id} className="repo">
+                        <h5><a href={e.svn_url}>{e.name}</a></h5>
+                        <button onClick={() => viewStore.push(viewStore.routes.issue({repo: e.name}))}>
+                          write Issue
+                        </button>
+                      </div>
+                    )
+                  }
+                </div>
+              );
             }
             default: {
               console.error("deferred state not supported", state);
@@ -50,7 +65,7 @@ export default inject("repoStore", "sessionStore")(
       render() {
         return (
           <div>
-            <h1>Repos</h1>
+            <h3>Repos</h3>
             {this.renderRepoList()}
           </div>
         );
