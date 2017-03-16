@@ -1,0 +1,13 @@
+
+.viewport {
+  flex-grow: 1;
+  flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.route {
+  position: absolute;
+    padding: 10px 5px;
+    width: 100vw;
+}
