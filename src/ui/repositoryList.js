@@ -39,6 +39,7 @@ export default inject("repoStore", "sessionStore", "viewStore")(
               //console.log(repos)
               return (
                 <div className="repos">
+                  <h3>Repositorys</h3>
                   <h5>Amount: {repos.length}</h5>
                   {
                   repos.map(
@@ -46,7 +47,7 @@ export default inject("repoStore", "sessionStore", "viewStore")(
                       <div key={e.id} className="repo">
                         <h5><a href={e.svn_url}>{e.name}</a></h5>
                         <button onClick={() => viewStore.push(viewStore.routes.issue({repo: e.name}))}>
-                          write Issue
+                          Issues
                         </button>
                       </div>
                     )
@@ -59,13 +60,12 @@ export default inject("repoStore", "sessionStore", "viewStore")(
             }
           }
         } else {
-          return <h1>NOT AUTHENTICATED </h1>;
+          return <h2>NOT AUTHENTICATED </h2>;
         }
       }
       render() {
         return (
           <div>
-            <h3>Repos</h3>
             {this.renderRepoList()}
           </div>
         );

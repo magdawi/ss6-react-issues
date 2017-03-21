@@ -2,8 +2,8 @@ import MobxReactForm from "mobx-react-form";
 import React from "react";
 import { observer, Provider, inject } from "mobx-react";
 import { extendObservable } from "mobx";
-import { fromPromise } from "mobx-utils";
-import { Button, Intent, Toaster, Position } from "@blueprintjs/core";
+import { fromPromise, PENDING, REJECTED, FULFILLED } from "mobx-utils";
+import { Spinner, Button, Intent, Toaster, Position } from "@blueprintjs/core";
 import validatorjs from "validatorjs";
 import FormInput from './formInput';
 
@@ -12,14 +12,14 @@ const plugins = { dvr: validatorjs };
 const fields = [
   {
     name: "title",
-    label: "Title",
-    placeholder: "Issue Title",
+    label: "Issue Title",
+    placeholder: "write in here..",
     rules: "required|string|between:5,10"
   },
   {
     name: "text",
-    label: "Text",
-    placeholder: "Issue Description",
+    label: "Issue Description",
+    placeholder: "write in here..",
     rules: "required|string|between:5,25"
   }
 ];
@@ -78,24 +78,78 @@ const FormComponent = inject("form")(
   })
 );
 
-export default inject("issueStore")(
+export default inject("issueStore", "sessionStore", "viewStore")(
   observer(
     class IssueFormComponent extends React.Component {
-      constructor({ issueStore, route }) {
+      constructor({ issueStore, sessionStore, viewStore, route }) {
         super();
         this.state = {
           form: new IssueForm({ fields }, { plugins }, issueStore, route.params.repo)
         };
       }
+
+      renderIssueList(repoName) {
+        const {issueStore, sessionStore, viewStore} = this.props;
+
+        if (sessionStore.authenticated) {
+
+          const issueDeferred = issueStore.issueDeferred;
+          const state = issueDeferred.state;
+          switch (state) {
+            case PENDING: {
+              return <Spinner />;
+            }
+            case REJECTED: {
+              return (
+                <div className="pt-non-ideal-state">
+                  <div
+                    className="pt-non-ideal-state-visual pt-non-ideal-state-icon"
+                  >
+                    <span className="pt-icon pt-icon-error" />
+                  </div>
+                  <h4 className="pt-non-ideal-state-title">Error occured</h4>
+                  <div className="pt-non-ideal-state-description">
+                    <Button onClick={issueStore.fetchIssues} text="retry"/>
+                  </div>
+                </div>
+              );
+            }
+            case FULFILLED: {
+              const issues = issueDeferred.value;
+              //console.log(issues)
+              return (
+                <div className="issues">
+                  <h3>Issues from {repoName}</h3>
+                  {
+                  issues.map(
+                    (e) =>
+                      <div key={e.id} className="repo">
+                        <h5>{e.name}</h5>
+                      </div>
+                    )
+                  }
+                </div>
+              );
+            }
+            default: {
+              console.error("deferred state not supported", state);
+            }
+          }
+        } else {
+          return <h2>NOT AUTHENTICATED </h2>;
+        }
+      }
+
       render() {
         const { form } = this.state;
-        const {route} = this.props;
+        const { route } = this.props;
 
         return (
           <Provider form={form}>
             <div>
-            <h3>issue for {route.params.repo}</h3>
+            <h3>New issue for {route.params.repo}</h3>
             <FormComponent />
+            {this.renderIssueList(route.params.repo)}
             </div>
           </Provider>
         );

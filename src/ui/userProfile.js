@@ -9,7 +9,7 @@ function Authenticated(Component) {
           return <Component/>
         }
         else {
-          return null;
+          return <h2>NOT AUTHENTICATED </h2>;
         }
 
       }
@@ -22,7 +22,6 @@ export default Authenticated(
     observer(
       function({sessionStore}) {
           const currentUser = (window.currentUser = sessionStore.currentUser)
-          console.log(currentUser)
           return (
             <div>
               <h4><a href={currentUser.html_url}>{currentUser.name}</a></h4>
