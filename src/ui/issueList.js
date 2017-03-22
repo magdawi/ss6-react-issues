@@ -83,14 +83,24 @@ export default inject("issueStore", "sessionStore")(
     class IssueFormComponent extends React.Component {
       constructor({ issueStore, sessionStore, route }) {
         super();
+        const values = {
+          title: '',
+          text: ''
+        }
         issueStore.getIssues(route.params.repo)
         this.state = {
-          form: new IssueForm({ fields }, { plugins }, issueStore, route.params.repo)
+          form: new IssueForm({ fields, values }, { plugins }, issueStore, route.params.repo)
         };
       }
 
-      setIssueFormContent(id, title, content){
-        console.log(this.state.form.fields)
+      setIssueFormContent(e){
+        console.log(this.state);
+        this.setState({
+          values: {
+            title: e.title,
+            text: e.body
+          }
+        })
       }
 
       renderIssueList(repoName) {
@@ -129,7 +139,7 @@ export default inject("issueStore", "sessionStore")(
                       <div key={e.id} className="issue">
                         <h5>{e.title}</h5>
                         <p>{e.body}</p>
-                        <button onClick={() => this.setIssueFormContent(e.id, e.title, e.body)}>
+                        <button onClick={() => this.setIssueFormContent(e)}>
                           edit
                         </button>
                       </div>
