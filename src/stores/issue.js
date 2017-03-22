@@ -13,6 +13,15 @@ export default class IssueStore {
           text
         });
       }),
+      patchIssue: action("patchIssue", (repo, id, title, text) => {
+        return githubAPI.patchIssue({
+          login: sessionStore.userDeferred.value.login,
+          repo,
+          id,
+          title,
+          text
+        });
+      }),
       getIssues: action("getIssues", (repo) => {
         when(
           // condition

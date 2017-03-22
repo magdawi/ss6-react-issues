@@ -36,19 +36,43 @@ class IssueForm extends MobxReactForm {
   }
 
   onSuccess(form) {
-    const { title, text } = form.values();
-    const resultPromise = this.issueStore.postIssue(this.repo, title, text);
-    resultPromise
-      .then(() => Toaster.create({ position: Position.TOP }).show({
-        message: "issue posted",
-        intent: Intent.SUCCESS
-      }))
-      .catch(() => Toaster.create({ position: Position.TOP }).show({
-        message: "failed posting issue",
-        action: { text: "retry", onClick: () => form.submit() },
-        intent: Intent.DANGER
-      }));
-    this.issuePostDeferred = fromPromise(resultPromise);
+    const { id, title, text } = form.values();
+    if (id === '') {
+      console.log('post', id)
+      const resultPromise = this.issueStore.postIssue(this.repo, title, text);
+      resultPromise
+        .then(() => Toaster.create({ position: Position.TOP }).show({
+          message: "issue posted",
+          intent: Intent.SUCCESS
+        }))
+        .catch(() => Toaster.create({ position: Position.TOP }).show({
+          message: "failed posting issue",
+          action: { text: "retry", onClick: () => form.submit() },
+          intent: Intent.DANGER
+        }));
+      this.issuePostDeferred = fromPromise(resultPromise);
+    }
+    else {
+      console.log('patch', id)
+      const resultPromise = this.issueStore.patchIssue(this.repo, id, title, text);
+      resultPromise
+        .then(() => Toaster.create({ position: Position.TOP }).show({
+          message: "issue updated",
+          intent: Intent.SUCCESS
+        }))
+        .catch(() => Toaster.create({ position: Position.TOP }).show({
+          message: "failed updating issue",
+          action: { text: "retry", onClick: () => form.submit() },
+          intent: Intent.DANGER
+        }));
+      this.issuePostDeferred = fromPromise(resultPromise);
+    }
+
+    this.state.form.update({
+      id: '',
+      title: '',
+      text: ''
+    });
   }
 }
 
@@ -84,6 +108,7 @@ export default inject("issueStore", "sessionStore")(
       constructor({ issueStore, sessionStore, route }) {
         super();
         const values = {
+          id: '',
           title: '',
           text: ''
         }
@@ -94,13 +119,11 @@ export default inject("issueStore", "sessionStore")(
       }
 
       setIssueFormContent(e){
-        console.log(this.state);
-        this.setState({
-          values: {
-            title: e.title,
-            text: e.body
-          }
-        })
+         this.state.form.update({
+           id: e.number,
+           title: e.title,
+           text: e.body
+         });
       }
 
       renderIssueList(repoName) {
