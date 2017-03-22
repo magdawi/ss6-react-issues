@@ -35,7 +35,7 @@ export default class GithubAPI {
   };
 
   getIssues = ({ login, repo }) => {
-    return fetch(`https://api.github.com/repos/${login}/${repo}/issues`, {
+    return fetch(`https://api.github.com/repos/${login}/${repo}/issues?utf8=✓&q=is%3Aissue`, {
       headers: {
         ...this.defaultHeaders
       }
@@ -78,6 +78,25 @@ export default class GithubAPI {
       body: JSON.stringify({
         title: title,
         body: text
+      })
+    }).then(response => {
+      if (response.ok) {
+        return response.json();
+      } else {
+        return Promise.reject();
+      }
+    });
+  };
+
+  closeIssue = ({ login, repo, id}) => {
+    return fetch(`https://api.github.com/repos/${login}/${repo}/issues/${id}`, {
+      method: "POST",
+      headers: {
+        ...this.defaultHeaders,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        state: "closed"
       })
     }).then(response => {
       if (response.ok) {

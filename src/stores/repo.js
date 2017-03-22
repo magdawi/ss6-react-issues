@@ -24,7 +24,7 @@ export default class Repo {
       postIssue: action("postIssue", () => {
         githubAPI.postIssue({
           login: sessionStore.userDeferred.value.login,
-          repo: "issuetest"
+          repo: ""
         });
       })
     });

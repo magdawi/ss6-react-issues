@@ -22,6 +22,13 @@ export default class IssueStore {
           text
         });
       }),
+      closeIssue: action("closeIssue", (repo, id) => {
+        return githubAPI.closeIssue({
+          login: sessionStore.userDeferred.value.login,
+          repo,
+          id
+        });
+      }),
       getIssues: action("getIssues", (repo) => {
         when(
           // condition

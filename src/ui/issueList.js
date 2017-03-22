@@ -38,7 +38,6 @@ class IssueForm extends MobxReactForm {
   onSuccess(form) {
     const { id, title, text } = form.values();
     if (id === '') {
-      console.log('post', id)
       const resultPromise = this.issueStore.postIssue(this.repo, title, text);
       resultPromise
         .then(() => Toaster.create({ position: Position.TOP }).show({
@@ -46,14 +45,13 @@ class IssueForm extends MobxReactForm {
           intent: Intent.SUCCESS
         }))
         .catch(() => Toaster.create({ position: Position.TOP }).show({
-          message: "failed posting issue",
+          message: "posting issue failed",
           action: { text: "retry", onClick: () => form.submit() },
           intent: Intent.DANGER
         }));
       this.issuePostDeferred = fromPromise(resultPromise);
     }
     else {
-      console.log('patch', id)
       const resultPromise = this.issueStore.patchIssue(this.repo, id, title, text);
       resultPromise
         .then(() => Toaster.create({ position: Position.TOP }).show({
@@ -61,7 +59,7 @@ class IssueForm extends MobxReactForm {
           intent: Intent.SUCCESS
         }))
         .catch(() => Toaster.create({ position: Position.TOP }).show({
-          message: "failed updating issue",
+          message: "updating issue failed",
           action: { text: "retry", onClick: () => form.submit() },
           intent: Intent.DANGER
         }));
@@ -126,6 +124,19 @@ export default inject("issueStore", "sessionStore")(
          });
       }
 
+      closeIssue(e){
+        const resultPromise = this.props.issueStore.closeIssue(this.state.form.repo, e.number)
+        resultPromise
+          .then(() => Toaster.create({ position: Position.TOP }).show({
+            message: "issue closed",
+            intent: Intent.SUCCESS
+          }))
+          .catch(() => Toaster.create({ position: Position.TOP }).show({
+            message: "closing issue failed",
+            intent: Intent.DANGER
+          }));
+      }
+
       renderIssueList(repoName) {
         const {issueStore, sessionStore} = this.props;
 
@@ -144,10 +155,7 @@ export default inject("issueStore", "sessionStore")(
                   >
                     <span className="pt-icon pt-icon-error" />
                   </div>
-                  <h4 className="pt-non-ideal-state-title">Error occured</h4>
-                  <div className="pt-non-ideal-state-description">
-                    <Button onClick={issueStore.getIssues} text="retry"/>
-                  </div>
+                  <h4 className="pt-non-ideal-state-title">no repo found</h4>
                 </div>
               );
             }
@@ -155,16 +163,17 @@ export default inject("issueStore", "sessionStore")(
               const issues = issueDeferred.value;
               return (
                 <div className="issues">
-                  <h3>Issues from {repoName}</h3>
+                  <h4>Issuelist from
+                    <small> {repoName} ({issues.length} open)</small>
+                  </h4>
                   {
                   issues.map(
                     (e) =>
                       <div key={e.id} className="issue">
                         <h5>{e.title}</h5>
                         <p>{e.body}</p>
-                        <button onClick={() => this.setIssueFormContent(e)}>
-                          edit
-                        </button>
+                        <Button onClick={() => this.setIssueFormContent(e)} text="edit" />
+                        <Button onClick={() => this.closeIssue(e)} text="close" />
                       </div>
                     )
                   }
@@ -187,9 +196,11 @@ export default inject("issueStore", "sessionStore")(
         return (
           <Provider form={form}>
             <div>
-            <h3>New issue for {route.params.repo}</h3>
-            <FormComponent />
-            {this.renderIssueList(route.params.repo)}
+              <h4>Add new issue to
+                <small> {route.params.repo}</small>
+              </h4>
+              <FormComponent />
+              {this.renderIssueList(route.params.repo)}
             </div>
           </Provider>
         );

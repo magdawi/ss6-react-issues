@@ -46,9 +46,7 @@ export default inject("repoStore", "sessionStore", "viewStore")(
                     (e) =>
                       <div key={e.id} className="repo">
                         <h5><a href={e.svn_url}>{e.name}</a></h5>
-                        <button onClick={() => viewStore.push(viewStore.routes.issue({repo: e.name}))}>
-                          Issues
-                        </button>
+                        <Button onClick={() => viewStore.push(viewStore.routes.issue({repo: e.name}))} text="issues" />
                       </div>
                     )
                   }

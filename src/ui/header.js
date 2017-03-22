@@ -25,7 +25,7 @@ export default inject("viewStore")(
             />
             <Button
               className="pt-button pt-minimal pt-icon-edit"
-              onClick={() => viewStore.push(viewStore.routes.issue({repo: "issuetest"}))}
+              onClick={() => viewStore.push(viewStore.routes.issue({repo: ""}))}
               text="issue"
             />
             <Button
