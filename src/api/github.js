@@ -35,8 +35,7 @@ export default class GithubAPI {
   };
 
   getIssues = ({ login, repo }) => {
-    console.log(repo);
-    return fetch(`https://api.github.com/users/${login}/${repo}/issues`, {
+    return fetch(`https://api.github.com/repos/${login}/${repo}/issues`, {
       headers: {
         ...this.defaultHeaders
       }

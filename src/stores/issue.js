@@ -13,7 +13,7 @@ export default class IssueStore {
           text
         });
       }),
-      fetchIssues: action("fetchIssues", (repo) => {
+      getIssues: action("getIssues", (repo) => {
         when(
           // condition
           () =>
@@ -25,7 +25,7 @@ export default class IssueStore {
             const userDeferred = sessionStore.userDeferred;
             this.issueDeferred = fromPromise(
               githubAPI.getIssues({
-                login: userDeferred.value,
+                login: userDeferred.value.login,
                 repo
               })
             );

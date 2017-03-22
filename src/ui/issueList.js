@@ -78,21 +78,25 @@ const FormComponent = inject("form")(
   })
 );
 
-export default inject("issueStore", "sessionStore", "viewStore")(
+export default inject("issueStore", "sessionStore")(
   observer(
     class IssueFormComponent extends React.Component {
-      constructor({ issueStore, sessionStore, viewStore, route }) {
+      constructor({ issueStore, sessionStore, route }) {
         super();
+        issueStore.getIssues(route.params.repo)
         this.state = {
           form: new IssueForm({ fields }, { plugins }, issueStore, route.params.repo)
         };
       }
 
+      setIssueFormContent(id, title, content){
+        console.log(this.state.form.fields)
+      }
+
       renderIssueList(repoName) {
-        const {issueStore, sessionStore, viewStore} = this.props;
+        const {issueStore, sessionStore} = this.props;
 
         if (sessionStore.authenticated) {
-
           const issueDeferred = issueStore.issueDeferred;
           const state = issueDeferred.state;
           switch (state) {
@@ -109,22 +113,25 @@ export default inject("issueStore", "sessionStore", "viewStore")(
                   </div>
                   <h4 className="pt-non-ideal-state-title">Error occured</h4>
                   <div className="pt-non-ideal-state-description">
-                    <Button onClick={issueStore.fetchIssues} text="retry"/>
+                    <Button onClick={issueStore.getIssues} text="retry"/>
                   </div>
                 </div>
               );
             }
             case FULFILLED: {
               const issues = issueDeferred.value;
-              //console.log(issues)
               return (
                 <div className="issues">
                   <h3>Issues from {repoName}</h3>
                   {
                   issues.map(
                     (e) =>
-                      <div key={e.id} className="repo">
-                        <h5>{e.name}</h5>
+                      <div key={e.id} className="issue">
+                        <h5>{e.title}</h5>
+                        <p>{e.body}</p>
+                        <button onClick={() => this.setIssueFormContent(e.id, e.title, e.body)}>
+                          edit
+                        </button>
                       </div>
                     )
                   }

@@ -1,7 +1,7 @@
 import createHistory from "history/createBrowserHistory";
 import { extendObservable, computed } from "mobx";
 import React from "react";
-import Issue from "../ui/issue";
+import Issue from "../ui/issueList";
 import RepositoryList from "../ui/repositoryList";
 import UserProfile from "../ui/userProfile";
 import RouteNotFound from "../ui/routeNotFound";
